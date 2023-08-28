@@ -1,58 +1,32 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Data;
 using System.Data.SqlClient;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.ListView;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 
 namespace Registration
 {
-    public partial class registration : Form
+    public partial class Signup : Form
     {
-        public string res;
-        public registration(string data)
+        public Signup()
         {
             InitializeComponent();
-            res = data;
-        }
-        public registration()
-        {
-            InitializeComponent();
+            
             User_state.Items.Add("Kerala");
             User_state.Items.Add("Karnataka");
             User_state.Items.Add("Tamilnadu");
             user_password.UseSystemPasswordChar = true;
-           
-
+            password1.UseSystemPasswordChar = true;
         }
         SqlConnection con = new SqlConnection("Data Source=DESKTOP-63KI9KR\\SQLEXPRESS;Initial Catalog=Employee;Integrated Security=True");
-        public int id;
-       
 
-        private void GetAllRecords()
-        {
-
-            SqlCommand cmd = new SqlCommand("select * from Registration where User_username=@res", con);
-            cmd.Parameters.AddWithValue("@res", res);
-            DataTable dt = new DataTable();
-            con.Open();
-
-            SqlDataReader sdr = cmd.ExecuteReader();
-            dt.Load(sdr);
-            con.Close();
-            recordview.DataSource = dt;
-
-        }
-
-
-        private void create_Click(object sender, EventArgs e)
+        private void button1_Click(object sender, EventArgs e)
         {
             if (IsValid())
             {
 
-               
+
                 SqlCommand cmd = new SqlCommand("insert into registration(First_name,Last_name,Date_of_birth,Age,Email_id,User_address,Phone,User_state,User_city,User_username,User_password,Gender) values(@First_name,@Last_name,@Date_of_birth,@Age,@Email_id,@User_address,@Phone,@User_state,@User_city,@User_username,@User_password,@Gender)", con);
                 DateTime selectedDate = date_of_birth.Value;
                 cmd.CommandType = CommandType.Text;
@@ -84,7 +58,11 @@ namespace Registration
                 cmd.ExecuteNonQuery();
                 con.Close();
                 MessageBox.Show("information is saved in databse successfully", "Saved", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                GetAllRecords();
+                this.Hide();
+                LoginForm loginForm = new LoginForm();
+                loginForm.ShowDialog();
+                this.Close();
+                InitializeComponent();
                 clear_all();
             }
         }
@@ -141,7 +119,7 @@ namespace Registration
                 MessageBox.Show("Password is required", "Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
-            else if(male.Checked==false && female.Checked==false && other.Checked==false )
+            else if (male.Checked == false && female.Checked == false && other.Checked == false)
             {
                 MessageBox.Show("Gender field is required", "Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
@@ -178,130 +156,9 @@ namespace Registration
 
         }
 
-        private void update_Click(object sender, EventArgs e)
-        {
-            if (id > 0)
-            {
-                if (IsValid())
-                {
-                    SqlCommand cmd = new SqlCommand("UPDATE Registration SET First_name=@First_name,Last_name=@Last_name," +
-                    "Date_of_birth=@Date_of_birth,Age=@age,Email_id=@Email_id,User_address=@User_address,Phone=@Phone," +
-                    "User_state=@User_state,User_city=@User_city,User_username=@User_username,User_password=@User_password,@Gender=Gender WHERE PK_Id=@id", con);
-                    DateTime selectedDate = date_of_birth.Value;
-                    cmd.CommandType = CommandType.Text;
-                    cmd.Parameters.AddWithValue("@First_name", first_name.Text);
-                    cmd.Parameters.AddWithValue("@Last_name", last_name.Text);
-                    cmd.Parameters.AddWithValue("@Date_of_birth", selectedDate);
-                    cmd.Parameters.AddWithValue("@age", age.Text);
-                    cmd.Parameters.AddWithValue("@Email_id", email_id.Text);
-                    cmd.Parameters.AddWithValue("@User_address", user_address.Text);
-                    cmd.Parameters.AddWithValue("@Phone", phone.Text);
-                    cmd.Parameters.AddWithValue("@User_state", User_state.Text);
-                    cmd.Parameters.AddWithValue("@User_city", User_city.Text);
-                    cmd.Parameters.AddWithValue("@User_username", user_username.Text);
-                    cmd.Parameters.AddWithValue("@User_password", user_password.Text);
-                    if (male.Checked)
-                    {
-                        cmd.Parameters.AddWithValue("@Gender", "Male");
+       
 
-                    }
-                    else if (female.Checked)
-                    {
-                        cmd.Parameters.AddWithValue("@Gender", "Female");
-                    }
-                    else if (other.Checked)
-                    {
-                        cmd.Parameters.AddWithValue("@Gender", "Other");
-                    }
-                    cmd.Parameters.AddWithValue("@id", id);
-                    con.Open();
-                    cmd.ExecuteNonQuery();
-                    con.Close();
-                    MessageBox.Show("information is updated in databse successfully", "Updated", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    GetAllRecords();
-                    clear_all();
-                }
-            }
-            else
-            {
-                MessageBox.Show("Please select a student to update his information", "Select?", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
-        }
-
-        private void recordview_CellClick(object sender, DataGridViewCellEventArgs e)
-        {
-
-            id = Convert.ToInt32(recordview.SelectedRows[0].Cells[0].Value);
-            first_name.Text = recordview.SelectedRows[0].Cells[1].Value.ToString();
-            last_name.Text = recordview.SelectedRows[0].Cells[2].Value.ToString();
-            date_of_birth.Text = recordview.SelectedRows[0].Cells[3].Value.ToString();
-            age.Text = recordview.SelectedRows[0].Cells[4].Value.ToString();
-            email_id.Text = recordview.SelectedRows[0].Cells[5].Value.ToString();
-            user_address.Text = recordview.SelectedRows[0].Cells[6].Value.ToString();
-            phone.Text = recordview.SelectedRows[0].Cells[7].Value.ToString();
-            User_state.Text = recordview.SelectedRows[0].Cells[8].Value.ToString();
-            User_city.Text = recordview.SelectedRows[0].Cells[9].Value.ToString();
-            user_username.Text = recordview.SelectedRows[0].Cells[10].Value.ToString();
-            user_password.Text = recordview.SelectedRows[0].Cells[11].Value.ToString();
-            string gender= recordview.SelectedRows[0].Cells[12].Value.ToString();
-            if (gender == "Male")
-            {
-                male.Checked = true;
-            }
-            else if (gender == "Female")
-            {
-                female.Checked = true;
-            }
-            else if (gender == "Other")
-            {
-                other.Checked = true;
-            }
-        }
-
-        private void label1_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void dateTimePicker1_ValueChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void textBox2_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void read_Click(object sender, EventArgs e)
-        {
-            GetAllRecords();
-        }
-
-        private void delete_Click(object sender, EventArgs e)
-        {
-            if (id > 0)
-            {
-                SqlCommand cmd = new SqlCommand("DELETE FROM Registration WHERE PK_Id=@id", con);
-
-                cmd.CommandType = CommandType.Text;
-
-
-                cmd.Parameters.AddWithValue("@id", id);
-                con.Open();
-                cmd.ExecuteNonQuery();
-                con.Close();
-                MessageBox.Show("information is deleted from databse successfully", "Deleted", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                GetAllRecords();
-                clear_all();
-            }
-            else
-            {
-                MessageBox.Show("Please select a student to delete his information", "Select?", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
-        }
-
-        private void first_name_Leave(object sender, EventArgs e)
+        private void first_name_Validating(object sender, CancelEventArgs e)
         {
             if (first_name.Text == string.Empty)
             {
@@ -311,22 +168,19 @@ namespace Registration
             else
             {
                 ValidateName();
-               
+
             }
         }
 
         private void ValidateName()
         {
-            
-                string input = first_name.Text;
-                if (!IsValidAlphabet(input))
-                
-                {
+            string input = first_name.Text;
+            if (!IsValidAlphabet(input))
+
+            {
                 MessageBox.Show("First name is not valid", "Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 first_name.Text = "";
             }
-           
-
         }
 
         private bool IsValidAlphabet(string input)
@@ -335,7 +189,7 @@ namespace Registration
             return Regex.IsMatch(input, pattern);
         }
 
-        private void last_name_Leave(object sender, EventArgs e)
+        private void last_name_Validating(object sender, CancelEventArgs e)
         {
             if (last_name.Text == string.Empty)
             {
@@ -345,7 +199,7 @@ namespace Registration
             else
             {
                 ValidateLastName();
-                
+
             }
         }
 
@@ -353,15 +207,16 @@ namespace Registration
         {
             string input = last_name.Text;
             if (!IsValidAlphabet(input))
-           
+
             {
                 MessageBox.Show("Last name is not valid", "Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 last_name.Text = "";
             }
 
         }
+    
 
-        private void email_id_Leave(object sender, EventArgs e)
+        private void email_id_Validating(object sender, CancelEventArgs e)
         {
             if (email_id.Text == string.Empty)
             {
@@ -379,7 +234,7 @@ namespace Registration
         {
             string input = email_id.Text;
             if (!IsValidEmail(input))
-           
+
             {
                 MessageBox.Show("Email id is not valid", "Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 email_id.Text = "";
@@ -394,7 +249,32 @@ namespace Registration
             return Regex.IsMatch(input, pattern);
         }
 
-        private void phone_Leave(object sender, EventArgs e)
+    
+
+    private void date_of_birth_Validating(object sender, CancelEventArgs e)
+        {
+            DateTime birthdate = date_of_birth.Value;
+
+
+
+            DateTime currentDate = DateTime.Now;
+            if(birthdate>currentDate)
+            {
+                MessageBox.Show("Selected date is greater than current date", "Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+        }
+
+        private void age_Validating(object sender, CancelEventArgs e)
+        {
+            if (age.Text == string.Empty)
+            {
+                MessageBox.Show("Age is required", "Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+            }
+        }
+
+        private void phone_Validating(object sender, CancelEventArgs e)
         {
             if (phone.Text == string.Empty)
             {
@@ -412,7 +292,7 @@ namespace Registration
         {
             string input = phone.Text;
             if (!IsValidPhone(input))
-            
+
             {
                 MessageBox.Show("Phone number is not valid", "Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 phone.Text = "";
@@ -426,8 +306,26 @@ namespace Registration
             return Regex.IsMatch(input, pattern);
         }
 
-        private void user_username_Leave(object sender, EventArgs e)
+    
+
+    private void User_state_Validating(object sender, CancelEventArgs e)
         {
+
+        }
+
+        private void user_address_Validating(object sender, CancelEventArgs e)
+        {
+
+        }
+
+        private void User_city_Validating(object sender, CancelEventArgs e)
+        {
+
+        }
+
+        private void user_username_Validating(object sender, CancelEventArgs e)
+        {
+
             if (user_username.Text == string.Empty)
             {
                 MessageBox.Show("Username is required", "Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -444,7 +342,7 @@ namespace Registration
         {
             string input = user_username.Text;
             if (!IsValidusername(input))
-            
+
             {
                 MessageBox.Show("Username contains only alphabets and digits", "Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 user_username.Text = "";
@@ -458,7 +356,8 @@ namespace Registration
             return Regex.IsMatch(input, pattern);
         }
 
-        private void user_password_Leave(object sender, EventArgs e)
+
+        private void user_password_Validating(object sender, CancelEventArgs e)
         {
             if (user_password.Text == string.Empty)
             {
@@ -476,7 +375,7 @@ namespace Registration
         {
             string input = user_password.Text;
             if (!IsValidpassword(input))
-            
+
             {
                 MessageBox.Show("Password contains atleast one uppercase,digit & special character", "Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 user_password.Text = "";
@@ -489,6 +388,20 @@ namespace Registration
 
             return Regex.IsMatch(input, pattern);
         }
+
+
+    
+
+    private void password1_Validating(object sender, CancelEventArgs e)
+        {
+
+            if (user_password.Text != password1.Text)
+            {
+                MessageBox.Show("Password and Confirm passwords are not matching", "Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                password1.Text = "";
+            }
+        
+    }
 
         private void User_state_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -509,16 +422,15 @@ namespace Registration
             {
                 User_city.Items.AddRange(new string[] { "Chennai", "Salem" });
             }
-            
         }
 
         private void date_of_birth_ValueChanged(object sender, EventArgs e)
         {
             age.Clear();
             DateTime birthdate = date_of_birth.Value;
-            
 
-       
+
+
             DateTime currentDate = DateTime.Now;
             int age1 = currentDate.Year - birthdate.Year;
 
@@ -528,25 +440,7 @@ namespace Registration
             }
             age.Text = age1.ToString();
         }
-
-        private void password1_Leave(object sender, EventArgs e)
-        {
-            if(user_password.Text!=password1.Text)
-            {
-                MessageBox.Show("Password and Confirm passwords are not matching", "Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                password1.Text = "";
-            }
-        }
-
-        private void login_Click(object sender, EventArgs e)
-        {
-            this.Hide(); 
-            LoginForm loginForm = new LoginForm();
-            loginForm.ShowDialog(); 
-            this.Close(); 
-            InitializeComponent();
-        }
     }
-}
+    }
 
 
